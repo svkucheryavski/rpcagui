@@ -6,33 +6,42 @@ header <- dashboardHeader(
 )
 
 body <- dashboardBody(
+  tags$head(tags$script(HTML('
+      Shiny.addCustomMessageHandler("jsCode",
+                             function(message) {
+                             console.log(message)
+                             eval(message.code);
+                             }
+  );
+  '))),
   fluidRow(
     column(width = 2,
            box(width = NULL, status = "warning",
-               p(style = 'font-size:8pt;', uiOutput('modelInfo'))
+               p(style = 'font-size:8pt;', uiOutput('modelInfo')),
+               uiOutput("expvarUI")
            ),
            box(width = NULL, status = "warning",
                p(style = 'font-size:8pt;', uiOutput('dataInfo')),
                checkboxGroupInput("prep", "Preprocessing",
-                                      choices = c(
-                                        Centering = 1,
-                                        Standardization = 2
-                                      ),
-                                      selected = c(1, 2)
-              ),
-               actionButton("btnApply", "Apply"),
+                                  choices = c(
+                                    Centering = 1,
+                                    Standardization = 2,
+                                    SNV = 3
+                                  ),
+                                  selected = c(1)
+               ),
+               actionButton("btnPreprocess", "Apply"),
                actionButton("btnReload", "Reload")
-           )
+           ),
+           uiOutput("plotSettings")
     ),
     column(width = 8,
            fluidRow(
              column(width = 6,
                     box(width = NULL, 
                         plotOutput("imagePlot",
-                                   height = 600,
-                                   brush = brushOpts(
-                                     id = "plot_brush"
-                                   )
+                                   height = 400,
+                                   click = "image_click"
                         )
                     )
              ),
@@ -40,13 +49,23 @@ body <- dashboardBody(
                     box(width = NULL, 
                         plotOutput(
                           "scoresPlot",
-                          height = 600,
+                          height = 400,
                           brush = brushOpts(
                             id = "plot_brush",
                             delayType = 'debounce',
-                            delay = 500,
+                            delay = 300,
                             resetOnNew = TRUE
                           )
+                        )
+                    )
+             )
+           ),
+           fluidRow(
+             column(width = 12,
+                    box(width = NULL,
+                        plotOutput(
+                          "variablesPlot",
+                          height = 300
                         )
                     )
              )

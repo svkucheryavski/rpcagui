@@ -37,7 +37,6 @@ getB = function(X, k = NULL, q = 0, p = 0, dist = 'unif') {
   
   if (is.null(k))
     k = ncols
-  
   l = k + p
   if (dist == 'unif')
     Y = X %*% matrix(runif(ncols * l, -1, 1), ncols, l)  

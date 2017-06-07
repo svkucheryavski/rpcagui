@@ -105,7 +105,6 @@ mda.data2im = function(data) {
   width = attr(data, 'width', exact = TRUE)
   height = attr(data, 'height', exact = TRUE)
   bgpixels = attr(data, 'bgpixels', exact = TRUE)
-  
   if (length(bgpixels) > 0) {
     img = matrix(NA, nrow = nrow(data) + length(bgpixels), ncol = ncol(data))
     img[-bgpixels, ] = data
@@ -137,6 +136,9 @@ mda.setimbg = function(data, bgpixels) {
   # get indices instead of logical values
   if (is.logical(bgpixels))
     bgpixels = which(bgpixels)
+
+  # remove the rows corresponding to background pixerls  
+  data = data[-bgpixels, ]      
   
   # correct indices of bgpixels if some of the pixels were already removed   
   if (length(attrs$bgpixels) > 0) {
@@ -145,11 +147,8 @@ mda.setimbg = function(data, bgpixels) {
     row.ind = row.ind[-attrs$bgpixels]
     bgpixels = row.ind[bgpixels]
   }
-  
-  # remove corresponding rows and correct attributes   
-  data = data[-bgpixels, ]      
-  attrs$bgpixels = unique(c(attrs$bgpixels, bgpixels))
-  
+
+  attrs$bgpixels = c(attrs$bgpixels, bgpixels)
   data = mda.setattr(data, attrs)
   data
 }
@@ -174,6 +173,7 @@ imshow = function(data, channels = 1, selected = NULL, main = NULL, colmap = 'je
   
   data = mda.subset(data, select = channels)
   data = (data - min(data)) / (max(data) - min(data))
+  
   data = mda.data2im(data)
   
   bg = is.na(data)
